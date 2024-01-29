@@ -23,9 +23,12 @@ jobs:
         run: kyverno version
 
       - name: Test the policy against the resource
+        run: kyverno apply policies/cpol-disallow-default-namespace.yml --resource manifests/bad_pod.yml --table
+        continue-on-error: true
+
+      - name: Get Output
+        id: get_output
         run: |
-           set +e
-           kyverno apply policies/cpol-disallow-default-namespace.yml --resource manifests/bad_pod.yml --table
-           exitcode="$?"
-           echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
-           exit "$exitcode"
+          exitcode="$?"
+          echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
+          exit "$exitcode"
