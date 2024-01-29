@@ -24,17 +24,9 @@ jobs:
 
       - name: Test the policy against the resource
         run: kyverno apply policies/cpol-disallow-default-namespace.yml --resource manifests/bad_pod.yml --table
-
-      - name: Get Output
-        id: get_output
-        run: |
           exitcode="$?"
           echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
-          exit "$exitcode"
-
-      - name: Check policy validation status & raise an issue
-        run: |
-          if [[ "${{ steps.get_output.outputs.exitcode }}" == "1" ]]; then
+          if [[ "${{ exitcode }}" == "1" ]]; then
             echo "Policy validation failed, creating an issue."
             curl -L \
             -X POST \
