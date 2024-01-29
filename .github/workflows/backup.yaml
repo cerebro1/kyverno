@@ -23,12 +23,19 @@ jobs:
         run: kyverno version
 
       - name: Test the policy against the resource
+        run: kyverno apply policies/cpol-disallow-default-namespace.yml --resource manifests/bad_pod.yml --table
+        continue-on-error: true
+
+      - name: Get Output
+        id: get_output
         run: |
-          set +e
-          kyverno apply policies/cpol-disallow-default-namespace.yml --resource manifests/bad_pod.yml --table
           exitcode="$?"
           echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
-          if [[ "${{ exitcode }}" == "1" ]]; then
+          exit "$exitcode"
+
+      - name: Check policy validation status & raise an issue
+        run: |
+          if [[ "${{ steps.get_output.outputs.exitcode }}" == "1" ]]; then
             echo "Policy validation failed, creating an issue."
             curl -L \
             -X POST \
@@ -37,7 +44,6 @@ jobs:
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/cerebro1/kyverno/issues \
             -d '{"title":"Kyverno Policy Validation Failed.","body":"Policy cpol-disallow-default-namespace failed."}'
-            exit "${{ exitcode }}"
           else
              echo "Policy validation successfull."
             exit 0
