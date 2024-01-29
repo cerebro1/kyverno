@@ -26,8 +26,7 @@ jobs:
         run: |
            exitcode="$?"
            echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
-           exit "$exitcode"
-           kyverno apply policies/cpol-disallow-default-namespace.yml --resource manifests/bad_pod.yml
+           kyverno apply policies/cpol-disallow-default-namespace.yml --resource manifests/bad_pod.yml --table
            exitcode="$?"
            echo "$exitcode"
            echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
